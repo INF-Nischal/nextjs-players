@@ -17,16 +17,52 @@ export default function RegistrationForm({ players }: { players: player[] }) {
       const reader = new FileReader();
 
       reader.onloadend = () => {
-        setImageDataUrl(reader.result as string);
-        console.log(imageDataUrl);
+        const url = reader.result as string;
+        setImageDataUrl(url);
       };
 
       reader.readAsDataURL(file);
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+    if (imageDataUrl) {
+      const base64Image = await convertImageToBase64(imageDataUrl as string);
+      formData.set("imageURL", base64Image);
+    }
+
+    dispatch(formData);
+  };
+
+  const convertImageToBase64 = (url: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.src = url;
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        ctx?.drawImage(img, 0, 0);
+
+        const base64String = canvas.toDataURL("image/png");
+        resolve(base64String);
+      };
+
+      img.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
+
   return (
-    <form action={dispatch} className="flex justify-center">
+    <form onSubmit={handleSubmit} className="flex justify-center">
       <div className="p-5 flex flex-col w-[600px]">
         <h1 className="uppercase text-3xl font-bold mb-8">
           Register New Player

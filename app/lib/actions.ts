@@ -6,18 +6,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { player } from "./definitions";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-
 const FormSchema = z.object({
   id: z.string(),
-  imageURL: z
-  .any()
-  .refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 5MB.`)
-  .refine(
-    (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-    "Only .jpg, .jpeg, .png and .webp formats are supported."
-  ),
+  imageURL: z.string().trim().min(1, { message: "Please enter an image URL." }),
   pname: z.string().trim().min(1, { message: "Please enter a name." }),
   age: z.coerce.number().gt(0, { message: "Age must be greater than 0." }),
   gender: z.enum(["male", "female"], {
@@ -59,7 +50,6 @@ export async function registerPlayer(
 
   if (!validatedFields.success) {
     console.log(validatedFields.error.flatten().fieldErrors);
-    console.log(validatedFields);
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Missing Fields. Failed to Register Player.",
@@ -70,9 +60,9 @@ export async function registerPlayer(
     validatedFields.data;
 
   try {
-    console.log(imageURL.name, pname, age, position, description );
     await sql<player>`INSERT INTO player(imageurl, pname, age, gender, position, description)
           VALUES(${imageURL}, ${pname}, ${age}, ${gender}, ${position}, ${description})`;
+    console.log("Player registered successfully.");
   } catch (error) {
     console.log(error);
     return {
@@ -81,6 +71,15 @@ export async function registerPlayer(
   }
   revalidatePath("/players");
   redirect("/players");
+}
+
+export async function updatePlayer(id: string) {
+  try {
+    console.log(id);
+  } catch (error) {
+    console.log(error);
+    return { message: "Database Error: Failed to update player." };
+  }
 }
 
 export async function deletePlayer(id: string) {
