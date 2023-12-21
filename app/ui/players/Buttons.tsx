@@ -1,12 +1,13 @@
 import { deletePlayer } from "@/app/lib/actions";
 import { updatePlayer } from "@/app/lib/actions";
+import Link from "next/link";
 
-export default function DeletePlayer({ id }: { id: string }) {
+export function DeletePlayer({ id }: { id: string }) {
   const deletePlayerWithId = deletePlayer.bind(null, id);
 
   return (
     <form action={deletePlayerWithId} className="w-full flex justify-center">
-      <button className="text-white bg-red-500 font-xl w-1/5 px-4 py-2 font-bold rounded-lg flex items-center">
+      <button className="text-white bg-red-500 font-xl w-[96px] px-4 py-2 font-bold rounded-lg flex justify-center items-center">
         Delete
       </button>
     </form>
@@ -18,9 +19,9 @@ export function UpdatePlayer({ id }: { id: string }) {
 
   return (
     <form action={updatePlayerWithId} className="w-full flex justify-center">
-      <button className="text-white bg-green-500 font-xl w-1/5 px-4 py-2 font-bold rounded-lg flex items-center">
+      <Link href={`players/${id}/edit`} className="text-white bg-green-500 font-xl w-[96px] px-4 py-2 font-bold rounded-lg flex justify-center items-center">
         Update
-      </button>
+      </Link>
     </form>
   );
 }

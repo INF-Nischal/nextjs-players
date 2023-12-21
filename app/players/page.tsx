@@ -1,6 +1,6 @@
 import Header from "@/app/ui/header";
 import { fetchPlayers } from "@/app/lib/data";
-import DeletePlayer from "../ui/players/Buttons";
+import {DeletePlayer, UpdatePlayer} from "../ui/players/Buttons";
 
 export default async function Players() {
   const players = await fetchPlayers();
@@ -41,7 +41,10 @@ export default async function Players() {
                     </span>
                   </p>
                 </div>
-                <DeletePlayer id={player.id} />
+                <div className="flex justify-between px-5">
+                  <UpdatePlayer id={player.id} />
+                  <DeletePlayer id={player.id} />
+                </div>
               </div>
             </div>
           ))}

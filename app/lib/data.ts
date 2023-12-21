@@ -14,3 +14,27 @@ export async function fetchPlayers() {
     throw new Error("Failed to fetch all customers.");
   }
 }
+
+export async function fetchPlayerById(id: string) {
+  try {
+    const result = await sql<player>`
+      SELECT
+        player.id,
+        player.imageurl,
+        player.pname,
+        player.age,
+        player.gender,
+        player.position,
+        player.description
+      FROM player
+      WHERE player.id = ${id};  
+    `;
+    const player = result.rows.map((row) => ({
+      ...row,
+    }));
+    return player[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch invoice.');
+  }
+}

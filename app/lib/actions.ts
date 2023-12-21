@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 import { sql } from "@vercel/postgres";
 import { z } from "zod";
@@ -34,6 +34,7 @@ export type State = {
 };
 
 const RegisterPlayer = FormSchema.omit({ id: true });
+const UpdatePlayer = FormSchema.omit({ id: true });
 
 export async function registerPlayer(
   prevState: State,
@@ -73,13 +74,31 @@ export async function registerPlayer(
   redirect("/players");
 }
 
-export async function updatePlayer(id: string) {
+export async function updatePlayer(id: string, formData: FormData) {
+  const { imageURL, pname, age, gender, position, description } =
+    UpdatePlayer.parse({
+      imageURL: formData.get("imageURL"),
+      pname: formData.get("pname"),
+      age: formData.get("age"),
+      gender: formData.get("gender"),
+      position: formData.get("position"),
+      description: formData.get("description"),
+    });
   try {
-    console.log(id);
+    await sql`
+          UPDATE player
+          SET imageurl = ${imageURL}, pname = ${pname}, age = ${age}, gender = ${gender}, position = ${position}, description = ${description}
+          WHERE id = ${id}
+        `;
   } catch (error) {
     console.log(error);
-    return { message: "Database Error: Failed to update player." };
+    return {
+      message: "Database Error: Failed to update player.",
+    };
   }
+
+  revalidatePath("/players");
+  redirect("/players");
 }
 
 export async function deletePlayer(id: string) {
